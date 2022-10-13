@@ -1,0 +1,143 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <conio.h>
+
+//s- variabila pentru stabilirea vecinilor unei tari
+//colorare- retine culoarea(nr) fiecarei tari
+//drum- vector pentru verificare drumurilor de cost maxim/minim
+int matrice[20][20], drum[50], contor=0, colorare[20], i, max = -32600, min = 32600;
+const char* Colorat[10]; //String pentru afisarea culorilor si pretul lor
+bool Este_diferit=false;
+
+int factorial(int x)
+{
+	int rez = 1;
+	for (int i=1; i<=x;i++)
+	{
+		rez = rez * i;
+	}
+	return rez;
+}
+
+void check(int tari)
+{
+	for (int i = 0; i < tari; i++)
+	{
+		for (int j = 0; j < tari; j++)
+		{
+			if (matrice[i][j] == 1 && colorare[j] == colorare[i])
+			{
+				Este_diferit = false;
+				while (Este_diferit == false)
+				{
+					Este_diferit = true;
+
+					for (int j2 = 0; j2 < tari - 1; j2++)
+					{
+						if ((matrice[i][j2] == 1) && colorare[j2] == colorare[i])
+						{
+							Este_diferit = false;
+							colorare[i]++;
+						}
+					}
+				}
+			}
+		}
+	}
+		
+}
+
+bool solutie(int k,int lungime)
+{
+	return (k == lungime-1);
+}
+
+bool eValid(int k)
+{
+	bool E_Bun = true;
+	for (int i = 0; i < k; i++)
+	{
+		if (colorare[i] == colorare[k]) E_Bun = false;
+	}
+	return E_Bun;
+}
+
+void afis(int limita)
+{
+	int l;
+	int suma=0;
+	printf("Culoare Start: %s\n", Colorat[colorare[0]]);
+	for (l = 0; l < limita; l++)
+	{
+		suma = suma + (colorare[l] * 10);
+		printf_s("%s ", Colorat[colorare[l]]);
+	}
+	drum[contor] = suma;
+	contor++;
+	if (suma >= max) max = suma;
+	if (suma <= min) min = suma;
+	printf("\n\n");
+}
+
+
+void back(int k,int lungime)
+{
+	for (int i = 0; i < lungime; i++)
+	{
+		colorare[k] = i;
+		if (eValid(k))
+		{
+			if (solutie(k, lungime))
+			{
+				check(lungime + 1);
+				afis(lungime+1);
+			}
+			else back(k + 1, lungime);
+		}
+	}
+}
+
+
+
+int main()
+{ 
+	int s = 1,vecin,tari;
+	Colorat[0] = "Alb($0)\0";
+	Colorat[1] = "Negru($10)\0";
+	Colorat[2] = "Galben($20)\0";
+	Colorat[3] = "Rosu($30)\0";
+	printf("Numar de tari: ");
+	scanf_s("%d", &tari);
+	for (int i = 0; i < tari; i++)
+	{
+		while (s == 1)
+		{
+			printf("\nCu cine sa fie vecin %d?", i);
+			scanf_s("%d", &vecin);
+			matrice[i][vecin] = 1;
+			matrice[vecin][i] = 1;
+			printf("Mai adaugati un vecin acestei tari?(1- Da) ");
+			scanf_s("%d", &s);
+		}
+		s = 1;
+	} 
+	
+	/*for (int i = 0; i < tari; i++)
+	{
+		for (int j = 0; j < tari; j++)
+		{
+			printf("%d ", matrice[i][j]);
+		}
+		printf("\n");
+	}*/
+
+	 back(0,tari-1);
+	 printf("Ni maxim: %d", max);
+	 printf("\nNi minim: %d", min);
+	 for (int i = 0; i < factorial(tari-1); i++)
+	 {
+		 if (drum[i] == max) printf("\nDrumul %d este drum de cost maxim\n", i);
+		 else if (drum[i] == min) printf("\nDrumul %d este drum de cost minim\n", i);
+	 }	
+}
